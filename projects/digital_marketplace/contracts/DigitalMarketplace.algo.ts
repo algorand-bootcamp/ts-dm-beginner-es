@@ -1,57 +1,93 @@
 import { Contract } from '@algorandfoundation/tealscript';
 
 export class DigitalMarketplace extends Contract {
+  unitaryPrice = GlobalStateKey<uint64>();
+
+  assetId = GlobalStateKey<AssetID>();
   /**
-   * Calculates the sum of two numbers
+   * Manejar la creación de la aplicación
    *
-   * @param a
-   * @param b
-   * @returns The sum of a and b
+   * @param unitaryPrice El precio al que se venderá el asset
+   * @param assetId El id del asset que se venderá
    */
-  private getSum(a: uint64, b: uint64): uint64 {
-    return a + b;
+
+  createApplication(unitaryPrice: uint64, assetId: AssetID): void {
+    this.unitaryPrice.value = unitaryPrice;
+    this.assetId.value = assetId;
   }
 
   /**
-   * Calculates the difference between two numbers
    *
-   * @param a
-   * @param b
-   * @returns The difference between a and b.
+   * Metodo para modificar el precio de venta
+   *
    */
-  private getDifference(a: uint64, b: uint64): uint64 {
-    return a >= b ? a - b : b - a;
+
+  setPrice(unitaryPrice: uint64): void {
+    assert(this.txn.sender === this.app.creator);
+    this.unitaryPrice.value = unitaryPrice;
   }
 
   /**
-   * A method that takes two numbers and does either addition or subtraction
    *
-   * @param a The first uint64
-   * @param b The second uint64
-   * @param operation The operation to perform. Can be either 'sum' or 'difference'
-   *
-   * @returns The result of the operation
+   * Metodo para que el contrato haga optin al asset y reciba los assets a vender
+   * @param mbrTxn La transaccion para cubrir el balance minimo del contrato
    */
-  doMath(a: uint64, b: uint64, operation: string): uint64 {
-    let result: uint64;
+  optInToAsset(mbrTxn: PayTxn): void {
+    assert(this.txn.sender === this.app.creator);
+    assert(!this.app.address.isOptedInToAsset(this.assetId.value));
 
-    if (operation === 'sum') {
-      result = this.getSum(a, b);
-    } else if (operation === 'difference') {
-      result = this.getDifference(a, b);
-    } else throw Error('Invalid operation');
+    verifyPayTxn(mbrTxn, {
+      receiver: this.app.address,
+      amount: globals.minBalance + globals.assetOptInMinBalance,
+    });
 
-    return result;
+    sendAssetTransfer({
+      xferAsset: this.assetId.value,
+      assetAmount: 0,
+      assetReceiver: this.app.address,
+    });
   }
 
   /**
-   * A demonstration method used in the AlgoKit fullstack template.
-   * Greets the user by name.
    *
-   * @param name The name of the user to greet.
-   * @returns A greeting message to the user.
+   * Metodo para que los usuarios compren assets
+   *
+   * @param quantity La cantidad de assets a comprar
+   * @param buyerTxn Transaccion de pago por la compra de Assets
    */
-  hello(name: string): string {
-    return 'Hello, ' + name;
+
+  buy(quantity: uint64, buyerTxn: PayTxn): void {
+    verifyPayTxn(buyerTxn, {
+      receiver: this.app.address,
+      sender: this.txn.sender,
+      amount: this.unitaryPrice.value * quantity,
+    });
+
+    sendAssetTransfer({
+      xferAsset: this.assetId.value,
+      assetAmount: quantity,
+      assetReceiver: this.txn.sender,
+    });
+  }
+
+  /**
+   *
+   * Metodo para cobrar las ganancias de la venta y recuperar los assets no vendidos
+   */
+  deleteApplication(): void {
+    assert(this.txn.sender === this.app.creator);
+
+    sendAssetTransfer({
+      assetReceiver: this.app.creator,
+      xferAsset: this.assetId.value,
+      assetAmount: this.app.address.assetBalance(this.assetId.value),
+      assetCloseTo: this.app.creator,
+    });
+
+    sendPayment({
+      receiver: this.app.creator,
+      amount: this.app.address.balance,
+      closeRemainderTo: this.app.creator,
+    });
   }
 }
