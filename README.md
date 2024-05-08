@@ -1,21 +1,15 @@
-# digital_marketplace
+# Bootcamp Beginner de Typescript
 
-Welcome to your new AlgoKit project!
+¡Bienvenido al Bootcamp Beginner de desarrollo blockchain en Python!
 
-This is your workspace root. A `workspace` in AlgoKit is an orchestrated collection of standalone projects (backends, smart contracts, frontend apps and etc).
+Con este contenido podrás crear una aplicación descentralizada completamente funcional con Algorand Typescript, incluyendo:
 
-By default, `projects_root_path` parameter is set to `projects`. Which instructs AlgoKit CLI to create a new directory under `projects` directory when new project is instantiated via `algokit init` at the root of the workspace.
+- Cómo crear tu primer smart contract
+- Testear correctamente tu smart contract
+- Construir los métodos necesarios para el cliente
+- Construir el frontend para que tus usuarios interactúen
 
-## Getting Started
-
-To get started refer to `README.md` files in respective sub-projects in the `projects` directory.
-
-To learn more about algokit, visit [documentation](https://github.com/algorandfoundation/algokit-cli/blob/main/docs/algokit.md).
-
-### GitHub Codespaces
-
-If executing this repository in GitHub Codespaces, the container will automatically cleanup templatized content and pre-install `algokit` for you. To get started execute:
-
-- `algokit init` - to invoke interactive wizard to guide you through the process of creating a new AlgoKit project
-
-Powered by [Copier templates](https://copier.readthedocs.io/en/stable/).
+## Grabaciones
+- [Sesión 1: Creación del contrato](https://drive.google.com/file/d/16nnv6hpP2ayvbmJ1r9Cxhi1hFm2kNLX3/view?usp=drive_link)
+- [Sesión 2: Testing del contrato](https://drive.google.com/file/d/1Zlcm6wVFwcBPWVyvi2nB4gSlhOsGBzoo/view?usp=drive_link)
+- [Sesión 3: Creación del cliente y frontend en React](https://drive.google.com/file/d/1soQs8SEVcYdkOt-QgPmHlOhA7E0VVHDj/view?usp=drive_link)
